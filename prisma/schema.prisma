@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum BrandVoiceKind {
+  PROFESSIONAL
+  FRIENDLY
+  LUXURY
+  CASUAL
+  CUSTOM
+}
+
+enum ReplyStatus {
+  DRAFT
+  POSTING
+  POSTED
+  FAILED
+}
+
+enum SyncStatus {
+  SUCCESS
+  FAILED
+}
+
+model User {
+  id          String               @id // Supabase auth.users ID
+  email       String               @unique
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  memberships OrganizationMember[]
+}
+
+model Organization {
+  id             String               @id @default(cuid())
+  name           String
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  members        OrganizationMember[]
+  googleAccounts GoogleAccount[]
+  brandVoices    BrandVoice[]
+}
+
+model OrganizationMember {
+  id             String       @id @default(cuid())
+  userId         String
+  organizationId String
+  role           String       @default("OWNER")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+}
+
+model GoogleAccount {
+  id                    String       @id @default(cuid())
+  organizationId        String
+  googleAccountId       String       @unique
+  email                 String
+  encryptedAccessToken  String
+  encryptedRefreshToken String
+  accessTokenExpiresAt  DateTime
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  locations             Location[]
+}
+
+model Location {
+  id               String        @id @default(cuid())
+  googleAccountId  String
+  googleLocationId String        @unique
+  name             String
+  address          String?
+  autoReply        Boolean       @default(false)
+  replyLength      Int           @default(90)
+  language         String        @default("English")
+  aiModel          String        @default("gpt-5.6-luna")
+  googleAccount    GoogleAccount @relation(fields: [googleAccountId], references: [id], onDelete: Cascade)
+  reviews          Review[]
+  brandVoice       BrandVoice?
+}
+
+model BrandVoice {
+  id                 String         @id @default(cuid())
+  organizationId     String
+  locationId         String?        @unique
+  kind               BrandVoiceKind @default(PROFESSIONAL)
+  customInstructions String?
+  organization       Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  location           Location?      @relation(fields: [locationId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id                   String        @id @default(cuid())
+  locationId           String
+  googleReviewId       String        @unique
+  reviewerName         String
+  rating               Int
+  comment              String?
+  reviewedAt           DateTime
+  googleReplyUpdatedAt DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  location             Location      @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  replies              ReviewReply[]
+
+  @@index([locationId, reviewedAt])
+}
+
+model ReviewReply {
+  id            String      @id @default(cuid())
+  reviewId      String
+  content       String
+  status        ReplyStatus @default(DRAFT)
+  generatedBy   String      @default("AI")
+  postedAt      DateTime?
+  failureReason String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  review        Review      @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId, status])
+}
+
+model SyncLog {
+  id           String     @id @default(cuid())
+  locationId   String
+  status       SyncStatus
+  message      String?
+  reviewsFound Int        @default(0)
+  createdAt    DateTime   @default(now())
+
+  @@index([locationId, createdAt])
+}
