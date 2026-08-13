@@ -26,7 +26,7 @@ export default function Home() {
 
     <section className="relative mx-auto max-w-7xl px-6 pb-12 pt-14 text-center lg:px-8 lg:pb-16 lg:pt-24">
       <div className="hero-glow" />
-      <div className="relative mx-auto max-w-4xl"><p className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white px-4 py-2 text-xs font-semibold text-[#2857f5] shadow-sm"><Sparkles className="h-3.5 w-3.5" /> The always-on customer care teammate</p>
+      <div className="relative mx-auto max-w-4xl">
         <h1 className="mt-7 text-5xl font-semibold leading-[1.01] tracking-[-0.07em] text-slate-950 sm:text-6xl lg:text-7xl">Every review answered.<br />Like you never missed it.</h1>
         <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-slate-600">Reply Pilot detects new Google reviews, writes a thoughtful response in your voice, and publishes it—automatically.</p>
         <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row"><Link href="/register" className="rounded-full bg-[#2857f5] px-6 py-3.5 text-sm font-semibold text-white shadow-xl shadow-blue-600/25 transition hover:-translate-y-0.5 hover:bg-blue-700">Start Free <ArrowRight className="ml-1 inline h-4 w-4" /></Link><a href="#product" className="rounded-full px-6 py-3.5 text-sm font-semibold text-slate-700 transition hover:text-[#2857f5]"><Play className="mr-1 inline h-4 w-4 fill-current" /> See it in action</a></div>
