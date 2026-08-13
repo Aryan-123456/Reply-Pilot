@@ -4,3 +4,6 @@ node_modules/
 .env.local
 *.log
 coverage/
+ARCHITECTURE.md
+designrules.md
+YOUR_SETUP_STEPS.md
